@@ -1,0 +1,24 @@
+<IfModule mod_rewrite.c>
+  Options +FollowSymlinks -Multiviews
+  RewriteEngine On
+
+  #过滤 参数
+  RewriteCond %{QUERY_STRING} .*\$_(POST|GET|REQUEST)\b.*
+  RewriteRule .+ /403.html?type=post-get-request [R,L]
+  
+  #过滤sql关键字
+  RewriteCond %{QUERY_STRING} .*\b(union|insert|create|drop|truncate|update|load|grant|where|select|and|or|count|chr|mid|like|alter)\b.*
+  RewriteRule .+ /403.html?type=sql [R,L]
+  
+  #过滤php shell
+  RewriteCond %{QUERY_STRING} .*\b(exec|shell_exec|eval|include|readonly)\b.*
+  RewriteRule .+ /403.html?type=exe-shell [R,L]
+  
+  #过滤php注入
+  RewriteCond %{QUERY_STRING} .*\b(call_user_func_array|invokefunction|mb_ereg_replace|file_put_contents|preg_|array_).*
+  RewriteRule .+ /403.html?type=php-func [R,L]
+
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^(.*)$ index.php?/$1 [QSA,PT,L]
+</IfModule>
